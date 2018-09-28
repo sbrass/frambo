@@ -55,16 +55,18 @@ contains
     integer :: u, i
     type(momentum4_t) :: total_p
     u = OUTPUT_UNIT; if (present (unit)) u = unit
+    write (u, "(80(A))") "================================================================================"
     write (u, "(A)") "Phasespace basic type:"
     write (u, "(A,I0)") "Number of particles: ", phs%n_particles
-    write (u, "(A,F12.4)") "Q**2: ", phs%total_p%p_sq
+    write (u, "(A,F12.4)") "Q**2: ", squared (phs%total_p)
     call phs%total_p%write (unit)
     total_p = phs%total_p
     do i = 1, phs%n_particles
        call phs%p(i)%write (unit)
        total_p = total_p - phs%p(i)
     end do
-    call total_p%write ()
+    write (u, "(A,1X,74(A))") "TOTAL", "=========================================================================="
+    call total_p%write (unit)
   end subroutine phs_base_write
 
   function phs_get_p (phs, i) result(p)
@@ -81,6 +83,15 @@ contains
 
   logical function phs_is_valid (phs) result (flag)
     class(phs_t), intent(in) :: phs
-    flag = phs%jacobian /= 0
+    type(momentum4_t) :: total_p
+    integer :: i
+    ! total_p = phs%total_p
+    ! do i = 1, phs%n_particles
+    !    total_p = total_p - phs%p(i)
+    !    call total_p%update_mass ()
+    ! end do
+    ! flag = total_p%get_mass () < 1e-3
+    flag = all (phs%p%is_on_shell ())
+    ! flag = phs%jacobian /= 0
   end function phs_is_valid
 end module phs
