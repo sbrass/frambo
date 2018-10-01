@@ -174,39 +174,46 @@ contains
   elemental function momentum4_is_on_shell (p) result (flag)
     class(momentum4_t), intent(in) :: p
     logical :: flag
-    flag = (mass (p) - p%m) < 1e-5
+    flag = abs (mass (p) - p%m) < 1e-5
   end function momentum4_is_on_shell
 
   subroutine momentum4_boost (p, p_boost, invert)
     class(momentum4_t), intent(inout) :: p
     type(momentum4_t), intent(in) :: p_boost
     logical, intent(in), optional :: invert
-    real(default) :: g, b_abs, Estar, ppstar, pp_abs
-    real(default), dimension(3) :: b, pt, pp
+    real(default) :: g, g_sq, b_sq, bp
+    real(default), dimension(3) :: b
     if (all (p_boost%p(2:4) == 0)) return
     b = p_boost%p(2:4) / p_boost%p(1)
-    b_abs = sqrt (dot_product (b, b))
     if (present(invert)) then
        if (invert) b = - b
     end if
-    g = 1. / sqrt (1. - dot_product (b, b))
-    ! Split in transversal and parallel components to boost vector
-    pp = dot_product (p%p(2:4), b) / dot_product (b, b) * b
-    pt = p%p(2:4) - pp
-    pp_abs = sqrt (dot_product (pp, pp))
-    ! print *, "BOOST: "
-    ! print *, "β:            ", b
-    ! print *, "p_parallel:   ", pp
-    ! print *, "p_transverse: ", pt
-    ! print *, "Δ(p, pp+pt):  ", p%p(2:4) - (pp + pt)
-    ! Boost parallel to boost vector
-    Estar = g * p%p(1) - g * b_abs * pp_abs
-    ppstar = -g * b_abs * p%p(1) + g * pp_abs
-    p%p(1) = Estar
-    p%p(2:4) = ppstar * pp / pp_abs + pt
-    ! print *, "BOOST ======================================================================"
-    ! print *, p%p(1)
-    ! p%p(1) = sqrt (dot_product (p%p(2:4), p%p(2:4)) + p%m**2)
-    ! print *, p%p(1)
+    b_sq = dot_product (b, b)
+    g = 1. / sqrt (1. - b_sq)
+    g_sq = (g - 1.) / b_sq
+    bp = dot_product (b, p%p(2:4))
+    p%p(2:4) = p%p(2:4) + g_sq * bp * b + g * b * p%p(1)
+    p%p(1)  = g * p%p(1) + g * bp
+
+    ! TODO find out why this boost sucks
+    ! ! Split in transversal and parallel components to boost vector
+    ! pp = dot_product (p%p(2:4), b) / dot_product (b, b) * b
+    ! pt = p%p(2:4) - pp
+    ! pp_abs = sqrt (dot_product (pp, pp))
+    ! ! print *, "BOOST: "
+    ! ! print *, "β:            ", b
+    ! ! print *, "p_parallel:   ", pp
+    ! ! print *, "p_transverse: ", pt
+    ! ! print *, "Δ(p, pp+pt):  ", p%p(2:4) - (pp + pt)
+    ! ! Boost parallel to boost vector
+    ! Estar = g * p%p(1) - g * b_abs * pp_abs
+    ! ppstar = -g * b_abs * p%p(1) + g * pp_abs
+    ! p%p(1) = Estar
+    ! ! p%p(2:4) = ppstar * pp / pp_abs + pt
+    ! p%p(2:4) = ppstar / b_abs * b + pt
+    ! ! print *, "BOOST ======================================================================"
+    ! ! print *, p%p(1)
+    ! ! p%p(1) = sqrt (dot_product (p%p(2:4), p%p(2:4)) + p%m**2)
+    ! ! print *, p%p(1)
   end subroutine momentum4_boost
 end module momentum

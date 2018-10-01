@@ -9,6 +9,7 @@ module phs
      integer :: n_particles = 0
      type(momentum4_t) :: total_p = zero_momentum
      type(momentum4_t), dimension(:), allocatable :: p
+     real(default), dimension(:), allocatable :: p_m
      real(default) :: jacobian = 0
    contains
      procedure :: init => phs_init
@@ -44,6 +45,7 @@ contains
     phs%n_particles = n_particles
     phs%total_p = momentum4_t (total_momentum)
     allocate (phs%p(n_particles), source=zero_momentum)
+    allocate (phs%p_m(n_particles), source=mass)
     do i = 1, n_particles
        phs%p(i) = momentum4_t (mass(i))
     end do
@@ -62,6 +64,7 @@ contains
     call phs%total_p%write (unit)
     total_p = phs%total_p
     do i = 1, phs%n_particles
+       ! write (unit, "(A,1X,F12.4)") "On-shell mass:", phs%p_m (i)
        call phs%p(i)%write (unit)
        total_p = total_p - phs%p(i)
     end do
@@ -85,13 +88,13 @@ contains
     class(phs_t), intent(in) :: phs
     type(momentum4_t) :: total_p
     integer :: i
-    ! total_p = phs%total_p
-    ! do i = 1, phs%n_particles
-    !    total_p = total_p - phs%p(i)
-    !    call total_p%update_mass ()
-    ! end do
-    ! flag = total_p%get_mass () < 1e-3
+    total_p = phs%total_p
+    do i = 1, phs%n_particles
+       total_p = total_p - phs%p(i)
+       call total_p%update_mass ()
+    end do
     flag = all (phs%p%is_on_shell ())
+    flag = flag .and. total_p%get_mass () < 1e5
     ! flag = phs%jacobian /= 0
   end function phs_is_valid
 end module phs

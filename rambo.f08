@@ -45,16 +45,14 @@ contains
          cos_theta = 2. * r(n - 5 + 2 * i) - 1.
          phi = 2. * PI * r(n - 4 + 2 * i)
          if (phi > PI) phi = phi - 2. * PI
-         q_abs = 4. * M(i - 1) * rho (M(i - 1), M(i), phs%p(i - 1)%get_mass ())
-         p = [cos(phi) * sqrt(1. - cos_theta**2), &
+         q_abs = 4. * M(i - 1) * rho (M(i - 1), M(i), phs%p_m(i - 1))
+         p = q_abs * [cos(phi) * sqrt(1. - cos_theta**2), &
               sin(phi) * sqrt(1. - cos_theta**2), &
               cos_theta]
-         call phs%p(i - 1)%set_p_on_shell (q_abs * p)
+         phs%p(i - 1) = momentum4_t ([sqrt (q_abs**2 + phs%p_m(i - 1)**2), p])
+         QNext = momentum4_t ([sqrt (q_abs**2 + M(i)**2), -p])
          call phs%p(i - 1)%boost (Q)
-         QNext = Q - phs%p(i - 1)
-         ! TODO Set mass as information, DO NOT enforce mass shell condition !!!
-         ! TODO As it is instabil as fu*(*())
-         call QNext%set_mass (M(i))
+         call QNext%boost (Q)
          ! print *, "================================================================================"
          ! call Q%write ()
          ! call phs%p(i - 1)%write ()
@@ -72,7 +70,7 @@ contains
     integer :: i, j
     associate (n => phs%n_particles, K => phs%K, M => phs%M)
       M(1) = phs%total_p%get_mass ()
-      M(n) = phs%p(n)%get_mass ()
+      M(n) = phs%p_m(n)
       ! Prepare K(1) from which the M's are inferred.
       call calculate_k (r)
       do i = 1, n - 1
