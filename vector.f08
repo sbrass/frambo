@@ -102,7 +102,7 @@ contains
     integer :: u
     u = OUTPUT_UNIT; if (present (unit)) u = unit
     write (u, "(12X,A,51X,A)") "M", "P"
-    write (u, "(5(1X,F12.4),1X,A,F12.4,A)") p%m, p%p, "(", squared (p) ,")"
+    write (u, "(5(1X,ES12.5),1X,A,ES12.5,A)") p%m, p%p, "(", squared (p) ,")"
   end subroutine momentum4_write
 
   function momentum4_get_p (p) result (v)
@@ -194,26 +194,5 @@ contains
     bp = dot_product (b, p%p(2:4))
     p%p(2:4) = p%p(2:4) + g_sq * bp * b + g * b * p%p(1)
     p%p(1)  = g * p%p(1) + g * bp
-
-    ! TODO find out why this boost sucks
-    ! ! Split in transversal and parallel components to boost vector
-    ! pp = dot_product (p%p(2:4), b) / dot_product (b, b) * b
-    ! pt = p%p(2:4) - pp
-    ! pp_abs = sqrt (dot_product (pp, pp))
-    ! ! print *, "BOOST: "
-    ! ! print *, "β:            ", b
-    ! ! print *, "p_parallel:   ", pp
-    ! ! print *, "p_transverse: ", pt
-    ! ! print *, "Δ(p, pp+pt):  ", p%p(2:4) - (pp + pt)
-    ! ! Boost parallel to boost vector
-    ! Estar = g * p%p(1) - g * b_abs * pp_abs
-    ! ppstar = -g * b_abs * p%p(1) + g * pp_abs
-    ! p%p(1) = Estar
-    ! ! p%p(2:4) = ppstar * pp / pp_abs + pt
-    ! p%p(2:4) = ppstar / b_abs * b + pt
-    ! ! print *, "BOOST ======================================================================"
-    ! ! print *, p%p(1)
-    ! ! p%p(1) = sqrt (dot_product (p%p(2:4), p%p(2:4)) + p%m**2)
-    ! ! print *, p%p(1)
   end subroutine momentum4_boost
 end module momentum

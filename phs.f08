@@ -10,6 +10,8 @@ module phs
      type(momentum4_t) :: total_p = zero_momentum
      type(momentum4_t), dimension(:), allocatable :: p
      real(default), dimension(:), allocatable :: p_m
+     real(default) :: flux = 0
+     real(default) :: volume = 0
      real(default) :: jacobian = 0
    contains
      procedure :: init => phs_init
@@ -17,7 +19,7 @@ module phs
      procedure :: base_write => phs_base_write
      procedure :: get_p => phs_get_p
      procedure(phs_generate), deferred :: generate
-     procedure :: get_jacobian => phs_get_jacobian
+     procedure :: get_weight => phs_get_weight
      procedure :: is_valid => phs_is_valid
   end type phs_t
 
@@ -60,7 +62,9 @@ contains
     write (u, "(80(A))") "================================================================================"
     write (u, "(A)") "Phasespace basic type:"
     write (u, "(A,I0)") "Number of particles: ", phs%n_particles
-    write (u, "(A,F12.4)") "Q**2: ", squared (phs%total_p)
+    write (u, "(A,ES12.5)") "Q**2: ", squared (phs%total_p)
+    write (u, "(A,ES12.5)") "Volume: ", phs%volume
+    write (u, "(A,ES12.5)") "Jacobian: ", phs%jacobian
     call phs%total_p%write (unit)
     total_p = phs%total_p
     do i = 1, phs%n_particles
@@ -79,10 +83,10 @@ contains
     p = phs%p(i)%get_p ()
   end function phs_get_p
 
-  real(default) function phs_get_jacobian (phs) result (j)
+  real(default) function phs_get_weight (phs) result (w)
     class(phs_t), intent(in) :: phs
-    j = phs%jacobian
-  end function phs_get_jacobian
+    w = phs%jacobian * phs%volume
+  end function phs_get_weight
 
   logical function phs_is_valid (phs) result (flag)
     class(phs_t), intent(in) :: phs
@@ -95,6 +99,5 @@ contains
     end do
     flag = all (phs%p%is_on_shell ())
     flag = flag .and. total_p%get_mass () < 1e5
-    ! flag = phs%jacobian /= 0
   end function phs_is_valid
 end module phs
