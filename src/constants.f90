@@ -1,3 +1,9 @@
+!> \file constants.f90
+!! \brief Supply constants.
+
+!> Module: constants
+!> \author: Simon Braß
+!> \date: 9.11.2018
 module constants
   implicit none
 

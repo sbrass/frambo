@@ -1,0 +1,19 @@
+#!/usr/bin/env python2
+
+Import('env')
+
+def runUnitTest(env,target,source):
+   import subprocess
+   app = str(source[0].abspath)
+   if not subprocess.call(app):
+       print("[PASSED] " + str(source[0]))
+       # open(str(target[0]),'w').write("PASSED\n")
+   else:
+       print("[FAILED] " + str(source[0]))
+
+if 'test' in COMMAND_LINE_TARGETS:
+    for f in Glob("*.f90"):
+        env.Program(f, LIBS=['rambo'])
+        env.Command(str(f).split('.')[0] + ".passed", str(f).split('.')[0] + ".sh",
+                    [Mkdir('build/test/out'),
+                     runUnitTest])

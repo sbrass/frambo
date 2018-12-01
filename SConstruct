@@ -1,18 +1,17 @@
 #!/usr/bin/env python2
 
 env = Environment (FORTRAN="gfortran",
-                   F08="gfortran",
-                   F08FLAGS="-Wall -g -fcheck=all -fbacktrace -O3 -ffast-math -ffpe-trap=\"invalid,zero,overflow\"",
+                   F90FLAGS="-Wall -g -fcheck=all -fbacktrace -O0 -ffpe-trap=\"invalid,zero,overflow\"",
                    LINKFLAGS="",
-                   FORTRANMODDIR="mod",
+                   # Import: We have to set the include path to the module files for the Scons scanner, without we will not trigger the scanner correctly.
+                   F90PATH="#/build/mod",
+                   FORTRANMODDIR="#/build/mod",
                    FORTRANMODDIRPREFIX="-J",
-                   F08PATH="mod",
-                   F08COMSTR="Compiling $TARGET",
-                   ARCOMSTR = "Archiving $TARGET",
+                   F90COMSTR="Compiling $TARGET",
+                   ARCOMSTR="Archiving $TARGET",
                    LINKCOMSTR="Linking $TARGET",
-                   LIBPATH=["."]
+                   LIBPATH=["#/build"]
                    )
 
-env.Library("rambo", Glob("*.f08"))
-
-env.Program("test", "test.f08", LIBS=["rambo"])
+SConscript(['src/SConscript'], exports='env', variant_dir='build')
+SConscript(['test/SConscript'], exports='env', variant_dir='build/test')
