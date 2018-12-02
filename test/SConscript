@@ -12,7 +12,7 @@ def runUnitTest(env,target,source):
        print("[FAILED] " + str(source[0]))
 
 if 'test' in COMMAND_LINE_TARGETS:
-    for f in Glob("*.f90"):
+    for f in Glob("*.f90") + Glob("*.c"):
         env.Program(f, LIBS=['rambo'])
         env.Command(str(f).split('.')[0] + ".passed", str(f).split('.')[0] + ".sh",
                     [Mkdir('build/test/out'),
