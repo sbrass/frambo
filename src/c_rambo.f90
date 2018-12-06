@@ -45,6 +45,14 @@ contains
     call phs%generate (r_in(:n_r_in))
   end subroutine generate_phs_rambo
 
+  subroutine invert_phs_rambo (ptr, r_out) bind (C)
+    type(c_ptr), intent(in), value :: ptr
+    real(c_double), dimension(*), intent(out) :: r_out
+    type(phs_rambo_t), pointer :: phs
+    call c_f_pointer (ptr, phs)
+    call phs%invert (r_out)
+  end subroutine invert_phs_rambo
+
   function get_weight_phs_rambo (ptr) result (w) bind (C)
     type(c_ptr), intent(in), value :: ptr
     real(c_double) :: w
@@ -53,5 +61,14 @@ contains
     w = phs%weight ()
   end function get_weight_phs_rambo
 
+  !> \note We get indices using the C style, match to Fortran: i → i + 1
+  subroutine get_p_phs_rambo (ptr, i, p) bind (C)
+    type(c_ptr), intent(in), value :: ptr
+    integer(c_int), intent(in), value :: i
+    real(c_double), dimension(4), intent(out) :: p
+    type(phs_rambo_t), pointer :: phs
+    call c_f_pointer (ptr, phs)
+    p = phs%p(i + 1)
+  end subroutine get_p_phs_rambo
 
 end module c_rambo
