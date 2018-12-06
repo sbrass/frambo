@@ -1,5 +1,12 @@
 !> \file c_rambo.f90
 !! \brief Provide a C-binding of the RAMBO type and type-bound procedures.
+
+!> Module: c_rambo
+!> \author Simon Braß
+!> \date 04.12.2018
+!! \brief C-binding of the phs_rambo module.
+!! \details The c_rambo module provides all necessay C-bindings to operate the phs_rambo_t.
+!! \example test/c_rambo.c
 module c_rambo
   use constants
   use iso_c_binding
@@ -13,7 +20,6 @@ contains
     real(c_double), dimension(4), intent(in) :: total_momentum
     real(c_double), dimension(*), intent(in) :: masses
     type(c_ptr) :: ptr
-    ! type(phs_rambo_t), target :: phs
     type(phs_rambo_t), pointer :: phs
     allocate (phs, source=phs_rambo_t (n_particles, total_momentum, masses(:n_particles)))
     ptr = c_loc (phs)
