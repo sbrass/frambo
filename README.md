@@ -22,6 +22,17 @@ Recommended: Run `scons test` afterwards, all test shall pass, before using `fra
 
 ## Installation ##
 
-TODO
+All files are installed by:
+```
+scons [--prefix=<user dir>] install
+```
+The default prefix is `/usr/local`.
+
+## Deinstallation ##
+
+All files including the installed files can be removed with:
+```
+scons -c install
+```
 
 [^1]: PLÄTZER, Simon. RAMBO on diet. arXiv preprint arXiv:1308.2922, 2013.
