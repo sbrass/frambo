@@ -1,16 +1,11 @@
 #!/usr/bin/env python2
 
 Import('env')
-# env.VariantDir('build', 'src')
-
-
-# BUG: Scons does not manage to build up the dependency on particle.o.
-# BUG: We'll explicitly declare the dependency now until we send a bug report
-# to the Scons' developers or fix it ourselves.
-# env.Depends('build/particle.os', 'build/mod/vector.mod')
-# env.Depends('build/rambo.os', 'build/mod/numerics.mod')
 
 rambo = env.SharedLibrary("rambo", Glob("*.f90"))
+
+# Static build for profiler.
+# rambo = env.Library("rambo", Glob("*.f90"))
 
 env.Install("$PREFIX/lib", "mod/phs_rambo.mod")
 env.Install("$PREFIX/lib", rambo)

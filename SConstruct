@@ -10,8 +10,10 @@ AddOption('--prefix',
           help='installation prefix')
 
 env = Environment (PREFIX=GetOption('prefix'),
+                   # Gfortran correctly include all flags.
+                   CC="gfortran",
                    FORTRAN="gfortran",
-                   F90FLAGS="-Wall -g -fcheck=all -fbacktrace -O0 -ffpe-trap=\"invalid,zero,overflow\"",
+                   F90FLAGS="-Wall -O2",
                    LINKFLAGS="",
                    CPPPATH="#/include",
                    # Import: We have to set the include path to the module files for the Scons scanner, without we will not trigger the scanner correctly.
@@ -19,9 +21,11 @@ env = Environment (PREFIX=GetOption('prefix'),
                    FORTRANMODDIR="#/build/mod",
                    FORTRANMODDIRPREFIX="-J",
                    FORTRANCOMSTR="Compiling $TARGET",
+                   CCCOMSTR="Compiling $TARGET",
                    F90COMSTR="Compiling $TARGET",
                    ARCOMSTR="Archiving $TARGET",
-                   # LINKCOMSTR="Linking $TARGET",
+                   LINKCOMSTR="Linking $TARGET",
+                   LINK='gfortran',
                    LIBPATH=["#/build"]
                    )
 
